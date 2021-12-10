@@ -275,7 +275,7 @@ elasticsearch:
 
 
     ############## Elasticsearch configuration settings ##############
-    action.auto_create_index: ".opendistro-*,.kibana*,security-auditlog-*"
+    #action.auto_create_index: ".opendistro-*,.kibana*,security-auditlog-*"
 
     node:
       attr.box_type: hot
@@ -447,7 +447,6 @@ certmanager:
 # Curator conjob configuration
 curator:
   enabled: {{ .Values.elasticsearch.curator.enabled }}
-  postgresql: {{ .Values | get "elasticsearch.curator.retention.postgresql" false }}
   startingDeadlineSeconds: 600
   affinity:     {{- toYaml .Values.elasticsearch.curator.affinity | nindent 4 }}
   tolerations:  {{- toYaml .Values.elasticsearch.curator.tolerations | nindent 4 }}
@@ -460,17 +459,8 @@ curator:
     password: {{ .Values.elasticsearch.curatorPassword }}
     secret: opendistro-es-curator-user
 
-  retention:
-    authlog_gb: {{ .Values.elasticsearch.curator.retention.authLogSizeGB }}
-    authlog_days: {{ .Values.elasticsearch.curator.retention.authLogAgeDays }}
-    other_gb: {{ .Values.elasticsearch.curator.retention.otherSizeGB }}
-    other_days: {{ .Values.elasticsearch.curator.retention.otherAgeDays }}
-    kubernetes_gb: {{ .Values.elasticsearch.curator.retention.kubernetesSizeGB }}
-    kubernetes_days: {{ .Values.elasticsearch.curator.retention.kubernetesAgeDays }}
-    kubeaudit_gb: {{ .Values.elasticsearch.curator.retention.kubeAuditSizeGB }}
-    kubeaudit_days: {{ .Values.elasticsearch.curator.retention.kubeAuditAgeDays }}
-    postgresql_gb: {{ .Values | get "elasticsearch.curator.retention.postgresqlSizeGB" nil }}
-    postgresql_days: {{ .Values | get "elasticsearch.curator.retention.postgresqlAgeDays" nil }}
+  retention: {{ .Values | get "elasticsearch.curator.retention" nil | toYaml | nindent 4 }}
+
 
 # Elasticsearch and kibana configurer job configuration
 configurer:
@@ -546,6 +536,11 @@ configurer:
           - "other-*"
           - "authlog-*"
           allowed_actions:
+          - "index"
+        - index_patterns:
+          - "*"
+          allowed_actions:
+          - "indices:admin/create"
           - "index"
     - role_name: curator
       definition:

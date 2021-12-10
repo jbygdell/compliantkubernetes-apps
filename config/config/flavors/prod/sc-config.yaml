@@ -18,6 +18,7 @@ prometheus:
       age: 7d
 
 elasticsearch:
+  indexPerNamespace: false
   sso:
     enabled: true
   masterNode:
@@ -52,9 +53,18 @@ elasticsearch:
         cpu: 10m
         memory: 32Mi
     retention:
-      otherSizeGB: 5
-      otherAgeDays: 30
-      authLogSizeGB: 5
+      - pattern: other-*
+        sizeGB: 5
+        ageDays: 10
+      - pattern: kubernetes-*
+        sizeGB: 50
+        ageDays: 50
+      - pattern: kubeaudit-*
+        sizeGB: 50
+        ageDays: 30
+      - pattern: authlog-*
+        sizeGB: 5
+        ageDays: 30
   snapshot:
     min: 300 # 12 / day * 30 days = 360, subtract some to account for failures
     max: 500
