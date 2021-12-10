@@ -603,18 +603,18 @@ curator:
   postgresql: false
 
   retention:
-    other_gb: 1
-    other_days: 10
-    kubecomponents_gb: 1
-    kubecomponents_days: 10
-    kubernetes_gb: 1
-    kubernetes_days: 10
-    kubeaudit_gb: 100
-    kubeaudit_days: 30
-    authlog_gb: 1
-    authlog_days: 10
-    postgresql_gb:
-    postgresql_days:
+    - pattern: other-*
+      sizeGB: 1
+      ageDays: 10
+    - pattern: kubernetes-*
+      sizeGB: 1
+      ageDays: 10
+    - pattern: kubeaudit-*
+      sizeGB: 100
+      ageDays: 30
+    - pattern: authlog-*
+      sizeGB: 1
+      ageDays: 10
 
   config_yml: |-
     ---
