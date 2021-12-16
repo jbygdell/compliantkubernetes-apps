@@ -271,7 +271,6 @@ kibana:
 elasticsearch:
   subdomain: elastic
   snapshotRepository: elastic-snapshots
-  indexPerNamespace: false
   # Create initial indices upon first startup
   createIndices: true
   # Single-sign-on using OIDC

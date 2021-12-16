@@ -149,9 +149,6 @@ opa:
 ## and and one for running on "user nodes".
 fluentd:
 
-  ## Enable the index per namespace feature for kubernetes logs.
-  indexPerNamespace: false
-
   ## Tolerate master nodes.
   tolerations:
     - effect: NoSchedule

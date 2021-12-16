@@ -267,7 +267,7 @@ extraConfigMaps:
     </match>
     <match kubernetes.**>
       @id elasticsearch_kubernetes
-      {{- if .Values.fluentd.indexPerNamespace }}
+      {{- if .Values.global.indexPerNamespace }}
       @type elasticsearch_dynamic
       {{- else }}
       @type "#{ENV['OUTPUT_TYPE']}"
@@ -291,7 +291,7 @@ extraConfigMaps:
 
       # Custom parameters --START--
       include_timestamp true # defaults to false
-      {{- if .Values.fluentd.indexPerNamespace }}
+      {{- if .Values.global.indexPerNamespace }}
       logstash_format true
       logstash_prefix ${record['kubernetes']['namespace_name']}
       {{- else }}

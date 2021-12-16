@@ -275,7 +275,11 @@ elasticsearch:
 
 
     ############## Elasticsearch configuration settings ##############
-    #action.auto_create_index: ".opendistro-*,.kibana*,security-auditlog-*"
+    {{- if .Values.global.indexPerNamespace }}
+    action.auto_create_index: "-kubeaudit*,-other*,-authlog*,+*"
+    {{- else }}
+    action.auto_create_index: ".opendistro-*,.kibana*,security-auditlog-*"
+    {{- end }}
 
     node:
       attr.box_type: hot
@@ -530,6 +534,14 @@ configurer:
         - "cluster:monitor/main"
         - "indices:data/write/bulk"
         index_permissions:
+        {{- if .Values.global.indexPerNamespace }}
+        - index_patterns:
+          # Exclude system indices
+          - '/^(?!\\.)[\w _.-]+$/'
+          allowed_actions:
+          - "indices:admin/create"
+          - "index"
+        {{- else }}
         - index_patterns:
           - "kubernetes-*"
           - "kubeaudit-*"
@@ -537,11 +549,7 @@ configurer:
           - "authlog-*"
           allowed_actions:
           - "index"
-        - index_patterns:
-          - "*"
-          allowed_actions:
-          - "indices:admin/create"
-          - "index"
+        {{- end }}
     - role_name: curator
       definition:
         cluster_permissions:
@@ -553,10 +561,14 @@ configurer:
           allowed_actions:
           - "indices_monitor"
         - index_patterns:
+          {{- if .Values.global.indexPerNamespace }}
+          - '/^(?!\\.)[\w _.-]+$/'
+          {{- else }}
           - "kubernetes-*"
           - "other-*"
           - "kubeaudit-*"
           - "authlog-*"
+          {{- end }}
           allowed_actions:
           - "indices:admin/delete"
     - role_name: kubernetes_log_reader
