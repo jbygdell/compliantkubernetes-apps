@@ -27,6 +27,7 @@
  - Fluentd can now properly handle and write orphaned documents to Opensearch when using the index per namespace feature.
   The orphaned documents will be written to `.orphaned-...` indices, which a user does not have access to read from.
  - Add `ingressClassName` in ingresses where that configuration option is available.
+ - kubeconfig.bash have been edited to work with the new 'secret' structure.
 
 ### Fixed
 
