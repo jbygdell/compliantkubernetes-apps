@@ -12,6 +12,7 @@
  - Added new panel to backup dashboard to reflect partial, failed and successful velero backups
  - Alertmanager group-by parameters was removed and replaced by the special value `...`
      See https://github.com/prometheus/alertmanager/blob/ec83f71/docs/configuration.md#route for more information
+ - Update kubeapi-metrics ingress api version to `networking.k8s.io/v1`.
 
 ### Fixed
 
