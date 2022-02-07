@@ -17,4 +17,7 @@
 
 ### Added
 
+- fluentd alerts for sc [#812](https://github.com/elastisys/compliantkubernetes-apps/pull/812)
+- fluentd grafana dashboard [#812](https://github.com/elastisys/compliantkubernetes-apps/pull/812)
+
 ### Removed

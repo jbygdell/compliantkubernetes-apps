@@ -22,3 +22,4 @@ defaultRules:
     rookMonitor: true
     predictLinear: true
     thanosMonitor: false
+    fluentd: true
