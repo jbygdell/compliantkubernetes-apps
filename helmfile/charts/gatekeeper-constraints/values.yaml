@@ -7,5 +7,10 @@ requireNetworkpolicies:
 requireResourceRequests:
     enable: true
     enforcementAction: dryrun
+restrictTags:
+    enable: true
+    enforcementAction: dryrun
 
 imageRegistryURL: registry.example.com
+
+imageRestrictedTag: latest

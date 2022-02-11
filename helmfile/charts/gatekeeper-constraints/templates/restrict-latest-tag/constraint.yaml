@@ -1,0 +1,26 @@
+{{- if .Values.restrictTags.enable -}}
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDisallowedTags
+metadata:
+  name: container-image-must-not-have-latest-tag
+spec:
+  enforcementAction: {{ .Values.restrictTags.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod", "ReplicationController"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet", "ReplicaSet"]
+      - apiGroups: ["extensions"]
+        kinds: ["Deployment", "StatefulSet", "DaemonSet", "ReplicaSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    namespaceSelector:
+      matchExpressions:
+      - key: owner
+        operator: NotIn
+        values:
+        - operator
+  parameters:
+    tags: {{- toYaml .Values.imageRestrictedTag | nindent 6}}
+{{- end }}

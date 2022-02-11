@@ -17,6 +17,8 @@
  - Update kubeapi-metrics ingress api version to `networking.k8s.io/v1`.
  - Fluentd can now properly handle and write orphaned documents to Opensearch when using the index per namespace feature.
   The orphaned documents will be written to `.orphaned-...` indices, which a user does not have access to read from.
+ - Added the new OPA policy - restricting the latest image tag .
+
 
 ### Fixed
 
