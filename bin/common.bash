@@ -301,13 +301,24 @@ validate_sops_config() {
         exit 1
     fi
 
-    fingerprints=$(yq r - 'creation_rules[0].pgp' < "${sops_config}")
-    if ! [[ "${fingerprints}" =~ ^[A-Z0-9,' ']+$ ]]; then
-        log_error "ERROR: SOPS config contains no or invalid PGP keys."
-        log_error "fingerprints=${fingerprints}"
-        log_error "Fingerprints must be uppercase and separated by colon."
-        log_error "Delete or edit the SOPS config to fix the issue"
-        log_error "SOPS config: ${sops_config}"
+    if [ $(yq r - 'creation_rules[0].pgp' < "${sops_config}") ]; then
+        fingerprints=$(yq r - 'creation_rules[0].pgp' < "${sops_config}")
+        if ! [[ "${fingerprints}" =~ ^[A-Z0-9,' ']+$ ]]; then
+            log_error "ERROR: SOPS config contains no or invalid PGP keys."
+            log_error "fingerprints=${fingerprints}"
+            log_error "Fingerprints must be uppercase and separated by colon."
+            log_error "Delete or edit the SOPS config to fix the issue"
+            log_error "SOPS config: ${sops_config}"
+            exit 1
+        fi
+    elif [ $(yq r - 'creation_rules[0].hc_vault_transit_uri' < "${sops_config}") ]; then
+        uri=$(yq r - 'creation_rules[0].hc_vault_transit_uri' < "${sops_config}")
+        if ! [[ "${uri}" =~ ^https?://.*"/v1/".*"/keys/".* ]]; then
+            log_error "ERROR: ${uri} is not a valid transit endpoint"
+            exit 1
+        fi
+    else
+        log_error "ERROR: Invalid SOPS creation rule"
         exit 1
     fi
 }
@@ -351,6 +362,12 @@ append_trap() {
 sops_config_write_fingerprints() {
     yq n 'creation_rules[0].pgp' "${1}" > "${sops_config}" || \
       (log_error "ERROR: Failed to write fingerprints" && rm "${sops_config}" && exit 1)
+}
+
+# Write transit path to SOPS config
+sops_config_write_transit_uri() {
+    yq n 'creation_rules[0].hc_vault_transit_uri' "${1}" > "${sops_config}" || \
+      (log_error "ERROR: Failed to write transit path" && rm "${sops_config}" && exit 1)
 }
 
 # Encrypt stdin to file. If the file already exists it's overwritten.

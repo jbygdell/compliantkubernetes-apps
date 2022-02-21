@@ -121,10 +121,16 @@ Assuming you already have everything needed to install the apps, this is what yo
    export CK8S_FLAVOR=[dev|prod] # defaults to dev
    ```
 
-1. Then set the path to where the ck8s configuration should be stored and the PGP fingerprint of the key(s) to use for encryption:
+1. Set the path to where the ck8s configuration should be stored:
 
    ```bash
    export CK8S_CONFIG_PATH=${HOME}/.ck8s/my-ck8s-cluster
+   ```
+
+1. Export the Vault transit URI **or** the PGP fingerprint of the key(s) to use for encryption:
+
+   ```bash
+   export CK8S_VAULT_TRANSIT_URI="https://my-vault/v1/transit/keys/key-name"
    export CK8S_PGP_FP=<PGP-fingerprint1,PGP-fingerprint2,...>
    ```
 

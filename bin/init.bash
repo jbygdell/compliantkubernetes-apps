@@ -57,13 +57,21 @@ if ! array_contains "${CK8S_FLAVOR}" "${ck8s_flavors[@]}"; then
 fi
 
 generate_sops_config() {
+    if [ -n "${CK8S_PGP_FP:-}" ] || [ -n "${CK8S_PGP_UID:-}" ] && [ -n "${CK8S_VAULT_TRANSIT_URI:-}" ]; then
+        log_error "ERROR: Only one of CK8S_PGP_FP, CK8S_PGP_UID or CK8S_VAULT_TRANSIT_URI should be set"
+        exit 1
+    fi
+
+
     if [ -n "${CK8S_PGP_FP:-}" ]; then
         if ! gpg --list-keys | grep "${CK8S_PGP_FP}" > /dev/null 2>&1; then
             log_error "ERROR: Fingerprint does not exist in gpg keyring."
             log_error "CK8S_PGP_FP=${CK8S_PGP_FP}"
             exit 1
         fi
-        fingerprint="${CK8S_PGP_FP}"
+        log_info "Initializing SOPS config with PGP fingerprint: ${CK8S_PGP_FP}"
+
+        sops_config_write_fingerprints "${CK8S_PGP_FP}"
     elif [ -n "${CK8S_PGP_UID:-}" ]; then
         fingerprint=$(gpg --list-keys --with-colons "${CK8S_PGP_UID}" | \
                       awk -F: '$1 == "fpr" {print $10;}' | head -n 1 || \
@@ -73,14 +81,21 @@ generate_sops_config() {
             log_error "CK8S_PGP_UID=${CK8S_PGP_UID}"
             exit 1
         fi
+        log_info "Initializing SOPS config with PGP fingerprint: ${fingerprint}"
+
+        sops_config_write_fingerprints "${fingerprint}"
+    elif [ -n "${CK8S_VAULT_TRANSIT_URI:-}" ]; then
+        if ! [[ "${CK8S_VAULT_TRANSIT_URI}" =~ ^https?://.*"/v1/".*"/keys/".* ]]; then
+            log_error "ERROR: ${CK8S_VAULT_TRANSIT_URI} is not a valid transit endpoint"
+            exit 1
+        fi
+        log_info "Initializing SOPS config with transit URI: ${CK8S_VAULT_TRANSIT_URI}"
+
+        sops_config_write_transit_uri "${CK8S_VAULT_TRANSIT_URI}"
     else
-        log_error "ERROR: CK8S_PGP_FP and CK8S_PGP_UID can't both be unset"
+        log_error "ERROR: One of CK8S_PGP_FP, CK8S_PGP_UID or CK8S_VAULT_TRANSIT_URI must be set"
         exit 1
     fi
-
-    log_info "Initializing SOPS config with PGP fingerprint: ${fingerprint}"
-
-    sops_config_write_fingerprints "${fingerprint}"
 }
 
 # Only writes value if it is set to "set-me"
